@@ -1,7 +1,6 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link> |
     <router-link to="/mwl-register-view">MWL List</router-link>
   </div>
   <router-view />
@@ -29,3 +28,13 @@
   color: #42b983;
 }
 </style>
+
+<script>
+import { defineComponent } from '@vue/composition-api'
+
+export default defineComponent({
+  setup() {
+    
+  },
+})
+</script>

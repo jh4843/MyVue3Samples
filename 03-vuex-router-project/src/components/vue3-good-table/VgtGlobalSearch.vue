@@ -53,6 +53,7 @@ export default {
       this.$emit('on-keyup', value)
     },
     entered (value) {
+      console.log('[Entered] Global Search: ' + value)
       this.$emit('on-enter', value)
     },
     getId () {

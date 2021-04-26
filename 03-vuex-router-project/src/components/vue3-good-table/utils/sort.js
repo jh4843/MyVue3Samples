@@ -1,7 +1,7 @@
 import {
   DEFAULT_SORT_TYPE,
   SORT_TYPES,
-} from './constants';
+} from "./constants";
 
 function getColumnFirstSortType(column) {
   return column.firstSortType || DEFAULT_SORT_TYPE;

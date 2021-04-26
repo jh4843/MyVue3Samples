@@ -120,7 +120,7 @@ export default {
   },
   computed: {
     allSelected () {
-      const { headerRow, groupChildObject } = this
+      const { headerRow} = this
       return headerRow.children.filter((row) => row.vgtSelected).length === headerRow.children.length
     }
   },

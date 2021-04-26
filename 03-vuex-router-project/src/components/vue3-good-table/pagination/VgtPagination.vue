@@ -2,231 +2,258 @@
   <div class="vgt-wrap__footer vgt-clearfix">
     <div v-if="perPageDropdownEnabled" class="footer__row-count vgt-pull-left">
       <form>
-        <label :for="id" class="footer__row-count__label">{{ rowsPerPageText }}:</label>
+        <label :for="id" class="footer__row-count__label"
+          >{{ rowsPerPageText }}:</label>
         <select
-            :id="id"
-            autocomplete="off"
-            name="perPageSelect"
-            class="footer__row-count__select"
-            v-model="currentPerPage"
-            @change="perPageChanged"
-            aria-controls="vgt-table">
+          :id="id"
+          autocomplete="off"
+          name="perPageSelect"
+          class="footer__row-count__select"
+          v-model="currentPerPage"
+          @change="perPageChanged"
+          aria-controls="vgt-table"
+        >
           <option
-              v-for="(option, idx) in rowsPerPageOptions"
-              :key="idx"
-              :value="option">
+            v-for="(option, idx) in rowsPerPageOptions"
+            :key="idx"
+            :value="option"
+          >
             {{ option }}
           </option>
-          <option v-if="paginateDropdownAllowAll" :value="total">{{ allText }}</option>
+          <option v-if="paginateDropdownAllowAll" :value="total">
+            {{ allText }}
+          </option>
         </select>
       </form>
     </div>
     <div class="footer__navigation vgt-pull-right">
       <pagination-page-info
-          @page-changed="changePage"
-          :total-records="total"
-          :last-page="pagesCount"
-          :current-page="currentPage"
-          :current-per-page="currentPerPage"
-          :of-text="ofText"
-          :page-text="pageText"
-          :info-fn="infoFn"
-          :mode="mode"/>
+        @page-changed="changePage"
+        :total-records="total"
+        :last-page="pagesCount"
+        :current-page="currentPage"
+        :current-per-page="currentPerPage"
+        :of-text="ofText"
+        :page-text="pageText"
+        :info-fn="infoFn"
+        :mode="mode"
+      />
       <button
-          type="button"
-          aria-controls="vgt-table"
-          class="footer__navigation__page-btn"
-          :class="{ disabled: !prevIsPossible }"
-          @click.prevent.stop="previousPage">
-        <span aria-hidden="true" class="chevron" v-bind:class="{ 'left': !rtl, 'right': rtl }"></span>
+        type="button"
+        aria-controls="vgt-table"
+        class="footer__navigation__page-btn"
+        :class="{ disabled: !prevIsPossible }"
+        @click.prevent.stop="previousPage"
+      >
+        <span
+          aria-hidden="true"
+          class="chevron"
+          v-bind:class="{ left: !rtl, right: rtl }"
+        ></span>
         <span>{{ prevText }}</span>
       </button>
 
       <button
-          type="button"
-          aria-controls="vgt-table"
-          class="footer__navigation__page-btn"
-          :class="{ disabled: !nextIsPossible }"
-          @click.prevent.stop="nextPage">
+        type="button"
+        aria-controls="vgt-table"
+        class="footer__navigation__page-btn"
+        :class="{ disabled: !nextIsPossible }"
+        @click.prevent.stop="nextPage"
+      >
         <span>{{ nextText }}</span>
-        <span aria-hidden="true" class="chevron" v-bind:class="{ 'right': !rtl, 'left': rtl }"></span>
+        <span
+          aria-hidden="true"
+          class="chevron"
+          v-bind:class="{ right: !rtl, left: rtl }"
+        ></span>
       </button>
     </div>
   </div>
 </template>
 
 <script>
-import VgtPaginationPageInfo from './VgtPaginationPageInfo.vue'
+import VgtPaginationPageInfo from "./VgtPaginationPageInfo.vue";
 import {
   PAGINATION_MODES,
-  DEFAULT_ROWS_PER_PAGE_DROPDOWN
-} from '../utils/constants'
+  DEFAULT_ROWS_PER_PAGE_DROPDOWN,
+} from "../utils/constants";
 
 export default {
-  name: 'VgtPagination',
-  emits: ['page-changed', 'per-page-changed'],
+  name: "VgtPagination",
+  emits: ["page-changed", "per-page-changed"],
   props: {
-    styleClass: { default: 'table table-bordered' },
+    styleClass: { default: "table table-bordered" },
     total: { default: null },
     perPage: {},
     rtl: { default: false },
     perPageDropdownEnabled: { default: true },
-    customRowsPerPageDropdown: { default () { return [] } },
+    customRowsPerPageDropdown: {
+      default() {
+        return [];
+      },
+    },
     paginateDropdownAllowAll: { default: true },
     mode: { default: PAGINATION_MODES.Records },
 
     // text options
-    nextText: { default: 'Next' },
-    prevText: { default: 'Prev' },
-    rowsPerPageText: { default: 'Rows per page:' },
-    ofText: { default: 'of' },
-    pageText: { default: 'page' },
-    allText: { default: 'All' },
+    nextText: { default: "Next" },
+    prevText: { default: "Prev" },
+    rowsPerPageText: { default: "Rows per page:" },
+    ofText: { default: "of" },
+    pageText: { default: "page" },
+    allText: { default: "All" },
     infoFn: { default: null },
   },
 
-  data () {
+  data() {
     return {
       id: this.getId(),
       currentPage: 1,
       prevPage: 0,
       currentPerPage: 10,
       rowsPerPageOptions: [],
-    }
+    };
   },
   watch: {
     perPage: {
-      handler (newValue, oldValue) {
-        this.handlePerPage()
-        this.perPageChanged(oldValue)
+      handler(newValue, oldValue) {
+        this.handlePerPage();
+        this.perPageChanged(oldValue);
       },
       immediate: true,
     },
 
-    customRowsPerPageDropdown () {
-      this.handlePerPage()
+    customRowsPerPageDropdown() {
+      this.handlePerPage();
     },
 
     total: {
-      handler (newValue, oldValue) {
+      handler(newValue) {
         if (this.rowsPerPageOptions.indexOf(this.currentPerPage) === -1) {
-          this.currentPerPage = newValue
+          this.currentPerPage = newValue;
         }
-      }
-    }
+      },
+    },
   },
 
   computed: {
     // Number of pages
-    pagesCount () {
-      const quotient = Math.floor(this.total / this.currentPerPage)
-      const remainder = this.total % this.currentPerPage
+    pagesCount() {
+      const quotient = Math.floor(this.total / this.currentPerPage);
+      const remainder = this.total % this.currentPerPage;
 
-      return remainder === 0 ? quotient : quotient + 1
+      return remainder === 0 ? quotient : quotient + 1;
     },
 
     // Can go to next page
-    nextIsPossible () {
-      return this.currentPage < this.pagesCount
+    nextIsPossible() {
+      return this.currentPage < this.pagesCount;
     },
 
     // Can go to previous page
-    prevIsPossible () {
-      return this.currentPage > 1
+    prevIsPossible() {
+      return this.currentPage > 1;
     },
   },
 
   methods: {
-    getId () {
-      return `vgt-select-rpp-${Math.floor(Math.random() * Date.now())}`
+    getId() {
+      return `vgt-select-rpp-${Math.floor(Math.random() * Date.now())}`;
     },
     // Change current page
-    changePage (pageNumber, emit = true) {
-      if (pageNumber > 0 && this.total > this.currentPerPage * (pageNumber - 1)) {
-        this.prevPage = this.currentPage
-        this.currentPage = pageNumber
-        this.pageChanged(emit)
+    changePage(pageNumber, emit = true) {
+      if (
+        pageNumber > 0 &&
+        this.total > this.currentPerPage * (pageNumber - 1)
+      ) {
+        this.prevPage = this.currentPage;
+        this.currentPage = pageNumber;
+        this.pageChanged(emit);
       }
     },
 
     // Go to next page
-    nextPage () {
+    nextPage() {
       if (this.nextIsPossible) {
-        this.prevPage = this.currentPage
-        ++this.currentPage
-        this.pageChanged()
+        this.prevPage = this.currentPage;
+        ++this.currentPage;
+        this.pageChanged();
       }
     },
 
     // Go to previous page
-    previousPage () {
+    previousPage() {
       if (this.prevIsPossible) {
-        this.prevPage = this.currentPage
-        --this.currentPage
-        this.pageChanged()
+        this.prevPage = this.currentPage;
+        --this.currentPage;
+        this.pageChanged();
       }
     },
 
     // Indicate page changing
-    pageChanged (emit = true) {
+    pageChanged(emit = true) {
       const payload = {
         currentPage: this.currentPage,
         prevPage: this.prevPage,
-      }
-      if (!emit) payload.noEmit = true
-      this.$emit('page-changed', payload)
+      };
+      if (!emit) payload.noEmit = true;
+      this.$emit("page-changed", payload);
     },
 
     // Indicate per page changing
-    perPageChanged (oldValue) {
+    perPageChanged(oldValue) {
       // go back to first page
       if (oldValue) {
         //* only emit if this isn't first initialization
-        this.$emit('per-page-changed', { currentPerPage: this.currentPerPage })
+        this.$emit("per-page-changed", { currentPerPage: this.currentPerPage });
       }
-      this.changePage(1, false)
+      this.changePage(1, false);
     },
 
     // Handle per page changing
-    handlePerPage () {
+    handlePerPage() {
       //* if there's a custom dropdown then we use that
-      if (this.customRowsPerPageDropdown !== null
-          && (Array.isArray(this.customRowsPerPageDropdown)
-              && this.customRowsPerPageDropdown.length !== 0)) {
-        this.rowsPerPageOptions = JSON.parse(JSON.stringify(this.customRowsPerPageDropdown))
+      if (
+        this.customRowsPerPageDropdown !== null &&
+        Array.isArray(this.customRowsPerPageDropdown) &&
+        this.customRowsPerPageDropdown.length !== 0
+      ) {
+        this.rowsPerPageOptions = JSON.parse(
+          JSON.stringify(this.customRowsPerPageDropdown)
+        );
       } else {
         //* otherwise we use the default rows per page dropdown
-        this.rowsPerPageOptions = JSON.parse(JSON.stringify(DEFAULT_ROWS_PER_PAGE_DROPDOWN))
+        this.rowsPerPageOptions = JSON.parse(
+          JSON.stringify(DEFAULT_ROWS_PER_PAGE_DROPDOWN)
+        );
       }
 
       if (this.perPage) {
-        this.currentPerPage = this.perPage
+        this.currentPerPage = this.perPage;
         // if perPage doesn't already exist, we add it
-        let found = false
+        let found = false;
         for (let i = 0; i < this.rowsPerPageOptions.length; i++) {
           if (this.rowsPerPageOptions[i] === this.perPage) {
-            found = true
+            found = true;
           }
         }
         if (!found && this.perPage !== -1) {
-          this.rowsPerPageOptions.unshift(this.perPage)
+          this.rowsPerPageOptions.unshift(this.perPage);
         }
       } else {
         // reset to default
-        this.currentPerPage = 10
+        this.currentPerPage = 10;
       }
     },
   },
 
-  mounted () {
-  },
+  mounted() {},
 
   components: {
-    'pagination-page-info': VgtPaginationPageInfo,
+    "pagination-page-info": VgtPaginationPageInfo,
   },
-}
+};
 </script>
 
 <style lang="scss">
-
 </style>

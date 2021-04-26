@@ -76,7 +76,7 @@ export default {
   ],
   watch: {
     columns: {
-      handler (newValue, oldValue) {
+      handler () {
         this.populateInitialFilters()
       },
       deep: true,
